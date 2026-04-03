@@ -342,6 +342,7 @@ CATEGORIES_DATA = [
 
 # ─── Auth endpoints ──────────────────────────────────────────────────────────
 @api_router.post("/auth/register")
+@api_router.post("/auth/signup")
 async def register(data: UserRegister, response: Response):
     email = data.email.lower().strip()
     if users_table.search(Q.email == email):
@@ -360,6 +361,7 @@ async def register(data: UserRegister, response: Response):
     return {"id": uid, "name": data.name, "email": email, "role": "user", "saved_tools": []}
 
 @api_router.post("/auth/login")
+@api_router.post("/auth/signin")
 async def login(data: UserLogin, response: Response, request: Request):
     email = data.email.lower().strip()
     ip = request.client.host if request.client else "unknown"
