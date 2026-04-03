@@ -1,8 +1,11 @@
 import axios from 'axios'
 
-// Use Vite proxy: all /api calls go to localhost:8000 automatically
+// In production, point to deployed backend via VITE_API_BASE_URL.
+// In local dev, keep /api so Vite proxy forwards to localhost:8000.
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: apiBaseURL,
   withCredentials: true, // send cookies (httpOnly JWT)
   headers: { 'Content-Type': 'application/json' },
 })
