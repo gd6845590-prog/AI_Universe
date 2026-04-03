@@ -22,15 +22,35 @@ export function AuthProvider({ children }) {
   }
 
   const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password })
-    setUser(data)
-    return data
+    try {
+      const { data } = await api.post('/auth/login', { email, password })
+      setUser(data)
+      return data
+    } catch (err) {
+      const status = err?.response?.status
+      if (status === 404 || status === 405) {
+        const { data } = await api.post('/login', { email, password })
+        setUser(data)
+        return data
+      }
+      throw err
+    }
   }
 
   const register = async (name, email, password) => {
-    const { data } = await api.post('/auth/register', { name, email, password })
-    setUser(data)
-    return data
+    try {
+      const { data } = await api.post('/auth/register', { name, email, password })
+      setUser(data)
+      return data
+    } catch (err) {
+      const status = err?.response?.status
+      if (status === 404 || status === 405) {
+        const { data } = await api.post('/auth/signup', { name, email, password })
+        setUser(data)
+        return data
+      }
+      throw err
+    }
   }
 
   const logout = async () => {
