@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-// Use local proxy in dev. In production, require explicit backend URL.
+// Use configured backend URL when provided; otherwise default to /api.
 const configuredBaseURL = (import.meta.env.VITE_API_BASE_URL || '').trim()
-const apiBaseURL = configuredBaseURL || (import.meta.env.DEV ? '/api' : '')
+const apiBaseURL = configuredBaseURL || '/api'
 
 const api = axios.create({
   baseURL: apiBaseURL,
@@ -15,10 +15,6 @@ api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config
-    if (!apiBaseURL && import.meta.env.PROD) {
-      err.message = 'Missing VITE_API_BASE_URL for production deployment'
-      return Promise.reject(err)
-    }
     if (err.response?.status === 401 && !original._retry && !original.url?.includes('/auth/')) {
       original._retry = true
       try {
