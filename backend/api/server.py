@@ -17,7 +17,11 @@ from tinydb.middlewares import CachingMiddleware
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-DB_PATH = Path(os.environ.get("DB_PATH", "./data/db.json"))
+IS_PROD = os.environ.get("VERCEL_ENV") in {"production", "preview"} or os.environ.get("ENV") == "production"
+
+# Vercel serverless has a read-only filesystem except /tmp.
+default_db_path = "/tmp/db.json" if IS_PROD else "./data/db.json"
+DB_PATH = Path(os.environ.get("DB_PATH", default_db_path))
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 db = TinyDB(str(DB_PATH), storage=CachingMiddleware(JSONStorage), indent=2)
@@ -102,6 +106,27 @@ class RecommendReq(BaseModel):
 
 class CompareReq(BaseModel):
     tool_slugs: list[str]
+
+
+def _set_auth_cookies(response: Response, access: str, refresh: str) -> None:
+    response.set_cookie(
+        "access_token",
+        access,
+        httponly=True,
+        secure=IS_PROD,
+        samesite="lax",
+        max_age=7200,
+        path="/",
+    )
+    response.set_cookie(
+        "refresh_token",
+        refresh,
+        httponly=True,
+        secure=IS_PROD,
+        samesite="lax",
+        max_age=604800,
+        path="/",
+    )
 
 # ─── LLM Chat Helper ─────────────────────────────────────────────────────────
 LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "dummy")
@@ -331,8 +356,7 @@ async def register(data: UserRegister, response: Response):
     users_table.insert(user_doc)
     access = create_access_token(uid, email)
     refresh = create_refresh_token(uid)
-    response.set_cookie("access_token", access, httponly=True, secure=False, samesite="lax", max_age=7200, path="/")
-    response.set_cookie("refresh_token", refresh, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
+    _set_auth_cookies(response, access, refresh)
     return {"id": uid, "name": data.name, "email": email, "role": "user", "saved_tools": []}
 
 @api_router.post("/auth/login")
@@ -372,8 +396,7 @@ async def login(data: UserLogin, response: Response, request: Request):
     uid = user["id"]
     access = create_access_token(uid, email)
     refresh = create_refresh_token(uid)
-    response.set_cookie("access_token", access, httponly=True, secure=False, samesite="lax", max_age=7200, path="/")
-    response.set_cookie("refresh_token", refresh, httponly=True, secure=False, samesite="lax", max_age=604800, path="/")
+    _set_auth_cookies(response, access, refresh)
     safe = {k: v for k, v in user.items() if k != "password_hash"}
     return safe
 
@@ -397,7 +420,7 @@ async def refresh_token_ep(request: Request, response: Response):
         if payload.get("type") != "refresh":
             raise HTTPException(401, "Invalid token type")
         access = create_access_token(payload["sub"], "")
-        response.set_cookie("access_token", access, httponly=True, secure=False, samesite="lax", max_age=7200, path="/")
+        response.set_cookie("access_token", access, httponly=True, secure=IS_PROD, samesite="lax", max_age=7200, path="/")
         return {"message": "Token refreshed"}
     except jwt.InvalidTokenError:
         raise HTTPException(401, "Invalid refresh token")
@@ -595,8 +618,8 @@ app.add_middleware(
         os.environ.get("FRONTEND_URL", "http://localhost:5173"),
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://*.vercel.app",  # Allow any Vercel deployment
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,12 +1,19 @@
 {
   "version": 2,
+  "framework": "vite",
   "installCommand": "cd frontend && npm install",
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
-  "env": {
-    "VITE_API_BASE_URL": "@ai_universe_backend_url"
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.11"
+    }
   },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
