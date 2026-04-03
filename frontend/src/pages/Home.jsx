@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import logo from '../assets/logo.png'
@@ -21,6 +21,39 @@ export default function Home() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const videoRef = useRef(null)
+
+  // ── Typewriter animation ──────────────────────────────────────────────────
+  const PHRASES = [
+    'discover the best AI tools.',
+    'compare AI models side-by-side.',
+    'integrate AI into your workflow.',
+    'find the perfect API for your app.',
+    'explore 50+ indexed AI tools.',
+  ]
+  const [phraseIdx, setPhraseIdx] = useState(0)
+  const [displayed, setDisplayed] = useState('')
+  const [typing, setTyping] = useState(true)
+
+  useEffect(() => {
+    const phrase = PHRASES[phraseIdx]
+    let timeout
+    if (typing) {
+      if (displayed.length < phrase.length) {
+        timeout = setTimeout(() => setDisplayed(phrase.slice(0, displayed.length + 1)), 45)
+      } else {
+        timeout = setTimeout(() => setTyping(false), 1800) // pause before erasing
+      }
+    } else {
+      if (displayed.length > 0) {
+        timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 25)
+      } else {
+        setPhraseIdx((i) => (i + 1) % PHRASES.length)
+        setTyping(true)
+      }
+    }
+    return () => clearTimeout(timeout)
+  }, [displayed, typing, phraseIdx])
+  // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     const video = videoRef.current
@@ -126,11 +159,20 @@ export default function Home() {
             <span className="gradient-text">AI</span>
           </h1>
 
-          {/* ── Subtext ── */}
-          <p style={{ color: 'hsl(var(--hero-sub))', fontSize: 18, lineHeight: 1.8, maxWidth: 480, margin: '16px auto 0', opacity: 0.82 }}>
-            The most powerful AI ecosystem to discover, compare,<br />
-            and integrate the best tools for real-world applications.
+          {/* ── Subtext with typewriter ── */}
+          <p style={{ color: 'hsl(var(--hero-sub))', fontSize: 18, lineHeight: 1.8, maxWidth: 520, margin: '16px auto 0', opacity: 0.82 }}>
+            The most powerful AI ecosystem to{' '}
+            <span style={{ color: 'hsl(var(--foreground))', fontWeight: 500 }}>
+              {displayed}
+              <span style={{
+                display: 'inline-block', width: 2, height: '1em',
+                background: 'hsl(var(--foreground))',
+                marginLeft: 2, verticalAlign: 'text-bottom',
+                animation: 'blink 0.75s step-end infinite',
+              }} />
+            </span>
           </p>
+          <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
 
           {/* ── CTAs (two buttons like the reference) ── */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 28, flexWrap: 'wrap' }}>
