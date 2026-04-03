@@ -193,30 +193,57 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* ── Stats row ── per-character color like reference image ── */}
+          {/* ── Stats row ── per-character color + subtle shimmer ── */}
+          <style>{`
+            @keyframes shimmer-gold {
+              0%   { background-position: -200% center; }
+              60%  { background-position: 200% center; }
+              100% { background-position: 200% center; }
+            }
+            @keyframes shimmer-purple {
+              0%   { background-position: -200% center; }
+              60%  { background-position: 200% center; }
+              100% { background-position: 200% center; }
+            }
+            .stat-gold {
+              background: linear-gradient(90deg, #fbbf24 35%, #fef3c7 50%, #fbbf24 65%);
+              background-size: 300% auto;
+              -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+              background-clip: text;
+              animation: shimmer-gold 3.5s ease-in-out infinite;
+            }
+            .stat-purple {
+              background: linear-gradient(90deg, #a855f7 35%, #e0c3fc 50%, #a855f7 65%);
+              background-size: 300% auto;
+              -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+              background-clip: text;
+              animation: shimmer-purple 3.5s ease-in-out infinite 0.4s;
+            }
+          `}</style>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 48, marginTop: 40, flexWrap: 'wrap' }}>
-            {/* 50+  — 5=gold, 0+=purple */}
+            {/* 50+  — 5=gold shimmer, 0+=purple shimmer */}
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1 }}>
-                <span style={{ color: '#fbbf24' }}>5</span><span style={{ color: '#a855f7' }}>0+</span>
+                <span className="stat-gold">5</span><span className="stat-purple">0+</span>
               </div>
               <div style={{ fontSize: 12, color: 'rgba(245,240,230,0.5)', marginTop: 4 }}>AI Tools</div>
             </div>
-            {/* 7 — purple */}
+            {/* 7 — purple shimmer */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1, color: '#a855f7' }}>
-                7
+              <div style={{ fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                <span className="stat-purple">7</span>
               </div>
               <div style={{ fontSize: 12, color: 'rgba(245,240,230,0.5)', marginTop: 4 }}>Categories</div>
             </div>
-            {/* Free — F=gold, ree=purple */}
+            {/* Free — F=gold shimmer, ree=purple shimmer */}
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1 }}>
-                <span style={{ color: '#fbbf24' }}>F</span><span style={{ color: '#a855f7' }}>ree</span>
+                <span className="stat-gold">F</span><span className="stat-purple">ree</span>
               </div>
               <div style={{ fontSize: 12, color: 'rgba(245,240,230,0.5)', marginTop: 4 }}>to Explore</div>
             </div>
           </div>
+
 
         </div>
       </div>
