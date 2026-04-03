@@ -6,14 +6,14 @@ import logo from '../assets/logo.png'
 
 const TOOLS = [
   { name: 'ElevenLabs', initial: 'E', color: '#f59e0b' },
-  { name: 'Sora',       initial: 'S', color: '#10a37f' },
-  { name: 'Runway',     initial: 'R', color: '#5b21b6' },
-  { name: 'ChatGPT',    initial: 'C', color: '#10a37f' },
-  { name: 'Gemini',     initial: 'G', color: '#4285f4' },
-  { name: 'Copilot',    initial: 'C', color: '#0078d4' },
+  { name: 'Sora', initial: 'S', color: '#10a37f' },
+  { name: 'Runway', initial: 'R', color: '#5b21b6' },
+  { name: 'ChatGPT', initial: 'C', color: '#10a37f' },
+  { name: 'Gemini', initial: 'G', color: '#4285f4' },
+  { name: 'Copilot', initial: 'C', color: '#0078d4' },
   { name: 'Midjourney', initial: 'M', color: '#0d0d0d' },
-  { name: 'Claude',     initial: 'C', color: '#cc785c' },
-  { name: 'Cursor',     initial: 'C', color: '#8b5cf6' },
+  { name: 'Claude', initial: 'C', color: '#cc785c' },
+  { name: 'Cursor', initial: 'C', color: '#8b5cf6' },
   { name: 'Perplexity', initial: 'P', color: '#20b2aa' },
 ]
 
@@ -39,7 +39,7 @@ export default function Home() {
     }
 
     const startLoop = () => {
-      video.play().then(() => animateOpacity(0, 1, 500)).catch(() => {})
+      video.play().then(() => animateOpacity(0, 1, 500)).catch(() => { })
     }
 
     const onTimeUpdate = () => {
@@ -80,10 +80,10 @@ export default function Home() {
           </Link>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
-            <Link to="/tools"       className="hero-nav-link">Features</Link>
-            <Link to="/compare"     className="hero-nav-link">Solutions</Link>
+            <Link to="/tools" className="hero-nav-link">Features</Link>
+            <Link to="/compare" className="hero-nav-link">Solutions</Link>
             <Link to="/api-key-guide" className="hero-nav-link">Plans</Link>
-            <Link to="/a-to-z"      className="hero-nav-link">Learning</Link>
+            <Link to="/a-to-z" className="hero-nav-link">Learning</Link>
           </div>
 
           <Link to="/signup" className="heroSecondary liquid-glass" style={{ borderRadius: 9999, padding: '8px 20px', textDecoration: 'none', color: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 600 }}>
@@ -151,41 +151,30 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* ── Stats row ── gradient text per word like reference image ── */}
+          {/* ── Stats row ── per-character color like reference image ── */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 48, marginTop: 40, flexWrap: 'wrap' }}>
-            {/* 50+ — purple → blue gradient */}
+            {/* 50+  — 5=gold, 0+=purple */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28,
-                letterSpacing: '-0.02em', lineHeight: 1,
-                background: 'linear-gradient(135deg, #a855f7 0%, #818cf8 60%, #6366f1 100%)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>50+</div>
+              <div style={{ fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                <span style={{ color: '#fbbf24' }}>5</span><span style={{ color: '#a855f7' }}>0+</span>
+              </div>
               <div style={{ fontSize: 12, color: 'rgba(245,240,230,0.5)', marginTop: 4 }}>AI Tools</div>
             </div>
-            {/* 7 — white */}
+            {/* 7 — purple */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28,
-                letterSpacing: '-0.02em', lineHeight: 1,
-                color: 'hsl(var(--foreground))',
-              }}>7</div>
+              <div style={{ fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1, color: '#a855f7' }}>
+                7
+              </div>
               <div style={{ fontSize: 12, color: 'rgba(245,240,230,0.5)', marginTop: 4 }}>Categories</div>
             </div>
-            {/* Free — orange → gold gradient */}
+            {/* Free — F=gold, ree=purple */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{
-                fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28,
-                letterSpacing: '-0.02em', lineHeight: 1,
-                background: 'linear-gradient(135deg, #f97316 0%, #fbbf24 60%, #fde68a 100%)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>Free</div>
+              <div style={{ fontFamily: 'General Sans, sans-serif', fontWeight: 700, fontSize: 28, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                <span style={{ color: '#fbbf24' }}>F</span><span style={{ color: '#a855f7' }}>ree</span>
+              </div>
               <div style={{ fontSize: 12, color: 'rgba(245,240,230,0.5)', marginTop: 4 }}>to Explore</div>
             </div>
           </div>
-
 
         </div>
       </div>
