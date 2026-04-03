@@ -1,8 +1,9 @@
 import axios from 'axios'
 
-// Use configured backend URL when provided; otherwise default to /api.
+// In production: VITE_API_BASE_URL = https://your-backend.onrender.com
+// In development: Vite proxy handles /api → http://localhost:8000
 const configuredBaseURL = (import.meta.env.VITE_API_BASE_URL || '').trim()
-const apiBaseURL = configuredBaseURL || '/api'
+const apiBaseURL = configuredBaseURL ? `${configuredBaseURL}/api` : '/api'
 
 const api = axios.create({
   baseURL: apiBaseURL,

@@ -3,6 +3,9 @@
   "installCommand": "cd frontend && npm install",
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
+  "env": {
+    "VITE_API_BASE_URL": "@ai_universe_backend_url"
+  },
   "rewrites": [
     {
       "source": "/((?!api/).*)",
