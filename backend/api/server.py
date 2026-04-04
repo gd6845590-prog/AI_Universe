@@ -17,7 +17,7 @@ from tinydb.middlewares import CachingMiddleware
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-IS_PROD = os.environ.get("VERCEL_ENV") in {"production", "preview"} or os.environ.get("ENV") == "production"
+IS_PROD = os.environ.get("VERCEL_ENV") in {"production", "preview"} or os.environ.get("ENV") == "production" or os.environ.get("RENDER") == "true"
 
 # Vercel serverless has a read-only filesystem except /tmp.
 default_db_path = "/tmp/db.json" if IS_PROD else "./data/db.json"
@@ -109,12 +109,14 @@ class CompareReq(BaseModel):
 
 
 def _set_auth_cookies(response: Response, access: str, refresh: str) -> None:
+    ss = "none" if IS_PROD else "lax"
+    sec = True if IS_PROD else False
     response.set_cookie(
         "access_token",
         access,
         httponly=True,
-        secure=IS_PROD,
-        samesite="lax",
+        secure=sec,
+        samesite=ss,
         max_age=7200,
         path="/",
     )
@@ -122,8 +124,8 @@ def _set_auth_cookies(response: Response, access: str, refresh: str) -> None:
         "refresh_token",
         refresh,
         httponly=True,
-        secure=IS_PROD,
-        samesite="lax",
+        secure=sec,
+        samesite=ss,
         max_age=604800,
         path="/",
     )
@@ -422,7 +424,9 @@ async def refresh_token_ep(request: Request, response: Response):
         if payload.get("type") != "refresh":
             raise HTTPException(401, "Invalid token type")
         access = create_access_token(payload["sub"], "")
-        response.set_cookie("access_token", access, httponly=True, secure=IS_PROD, samesite="lax", max_age=7200, path="/")
+        ss = "none" if IS_PROD else "lax"
+        sec = True if IS_PROD else False
+        response.set_cookie("access_token", access, httponly=True, secure=sec, samesite=ss, max_age=7200, path="/")
         return {"message": "Token refreshed"}
     except jwt.InvalidTokenError:
         raise HTTPException(401, "Invalid refresh token")
