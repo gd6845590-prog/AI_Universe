@@ -612,6 +612,10 @@ async def startup():
 
     logger.info(f"AI Universe API ready | LLM provider: {LLM_PROVIDER}")
 
+@app.get("/")
+def read_root():
+    return {"message": "AI Universe API is running! Access the frontend URL to use the app."}
+
 app.include_router(api_router)
 
 app.add_middleware(
