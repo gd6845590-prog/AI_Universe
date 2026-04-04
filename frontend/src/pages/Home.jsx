@@ -82,14 +82,20 @@ export default function Home() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
             <Link to="/tools" className="hero-nav-link">Features</Link>
-            <Link to="/compare" className="hero-nav-link">Solutions</Link>
+            <Link to="/categories" className="hero-nav-link">Solutions</Link>
             <Link to="/api-key-guide" className="hero-nav-link">Plans</Link>
             <Link to="/a-to-z" className="hero-nav-link">Learning</Link>
           </div>
 
-          <Link to="/signup" className="heroSecondary liquid-glass" style={{ borderRadius: 9999, padding: '8px 20px', textDecoration: 'none', color: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 600 }}>
-            Sign Up
-          </Link>
+          {user ? (
+            <Link to="/dashboard" className="heroSecondary liquid-glass" style={{ borderRadius: 9999, padding: '8px 20px', textDecoration: 'none', color: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+              Dashboard <span style={{ opacity: 0.7, paddingLeft: 2 }}>›</span>
+            </Link>
+          ) : (
+            <Link to="/signup" className="heroSecondary liquid-glass" style={{ borderRadius: 9999, padding: '8px 20px', textDecoration: 'none', color: 'hsl(var(--foreground))', fontSize: 14, fontWeight: 600 }}>
+              Sign Up
+            </Link>
+          )}
         </nav>
         <div style={{ height: 1, background: 'linear-gradient(to right, transparent, hsl(var(--foreground)/0.2), transparent)' }} />
       </header>
