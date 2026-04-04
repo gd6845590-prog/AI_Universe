@@ -5,207 +5,165 @@ import Footer from '@/components/layout/Footer'
 import { useAuth } from '@/context/AuthContext'
 import { useTools } from '@/context/ToolContext'
 import api from '@/lib/api'
-import { Zap, Star, BarChart, BookOpen, Search, TrendingUp, Bookmark, Loader2 } from 'lucide-react'
+import { MessageSquare, TrendingUp, Bookmark, Star, Loader2 } from 'lucide-react'
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const { tools, categories, loading: toolsLoading } = useTools()
-  const [activeTab, setActiveTab] = useState('overview')
+  const { tools, loading: toolsLoading } = useTools()
   const [savedTools, setSavedTools] = useState([])
   const [savedLoading, setSavedLoading] = useState(false)
 
-  const tabs = [
-    { id: 'overview',   label: 'Overview',    icon: BarChart },
-    { id: 'favorites',  label: 'Saved Tools', icon: Star },
-    { id: 'guides',     label: 'API Guides',  icon: BookOpen },
-  ]
-
   useEffect(() => {
-    if (activeTab === 'favorites' && user) {
+    if (user) {
       setSavedLoading(true)
       api.get('/user/saved-tools')
         .then((r) => setSavedTools(r.data))
         .catch(() => {})
         .finally(() => setSavedLoading(false))
     }
-  }, [activeTab, user])
+  }, [user])
 
   const topTools = tools.filter((t) => t.popularity >= 80).slice(0, 4)
-  const apiTools  = tools.filter((t) => t.is_api).length
-  const freeTools = tools.filter((t) => t.pricing?.free_tier).length
+
+  const ToolCard = ({ tool, isSaved }) => (
+    <Link to={`/tools/${tool.slug}`} style={{ textDecoration:'none' }}>
+      <div className="glass-card" style={{ borderRadius:14, padding:20, transition:'all 0.2s' }}
+        onMouseEnter={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.transform='translateY(-2px)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.transform='translateY(0)' }}
+      >
+        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:10 }}>
+          <div style={{ width:40, height:40, borderRadius:10, background: tool.icon_color || '#6366f1', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700, fontSize:16, flexShrink:0 }}>
+            {tool.icon || tool.name?.[0]}
+          </div>
+          <div style={{ minWidth: 0, overflow: 'hidden' }}>
+            <div style={{ fontWeight:600, color:'hsl(40,6%,95%)', fontSize:15, whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden' }}>{tool.name}</div>
+            <div style={{ fontSize:12, color:'rgba(245,240,230,0.4)', whiteSpace:'nowrap', textOverflow:'ellipsis', overflow:'hidden' }}>{tool.provider}</div>
+          </div>
+          <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:4, flexShrink:0 }}>
+            {isSaved ? (
+              <Bookmark size={14} fill="#fbbf24" color="#fbbf24" />
+            ) : (
+              <>
+                <Star size={12} fill="#fbbf24" color="#fbbf24" />
+                <span style={{ fontSize:12, color:'#fbbf24', fontWeight:600 }}>{tool.rating}</span>
+              </>
+            )}
+          </div>
+        </div>
+        <p style={{ fontSize:13, color:'rgba(245,240,230,0.5)', lineHeight:1.5, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+          {tool.description}
+        </p>
+      </div>
+    </Link>
+  )
 
   return (
     <div style={{ minHeight:'100vh', background:'hsl(260,87%,3%)', display:'flex', flexDirection:'column' }}>
       <Navbar transparent={false} />
 
       <div style={{ flex:1, maxWidth:1200, margin:'0 auto', width:'100%', padding:'40px 24px' }}>
-        {/* Welcome Banner */}
-        <div className="glass-card" style={{
-          borderRadius:20, padding:'32px 36px',
-          background:'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(79,70,229,0.08))',
-          border:'1px solid rgba(124,58,237,0.2)',
-          marginBottom:32,
-          display:'flex', alignItems:'center', justifyContent:'space-between',
-          flexWrap:'wrap', gap:20,
-        }}>
+        
+        {/* Welcome Section */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 700, color: '#fff', flexShrink:0 }}>
+            {user?.name?.[0]?.toUpperCase() || 'U'}
+          </div>
           <div>
-            <h1 style={{ fontFamily:'General Sans,sans-serif', fontSize:28, fontWeight:700, letterSpacing:'-0.03em', color:'hsl(40,6%,95%)', marginBottom:8 }}>
-              Welcome back, {user?.name || 'Explorer'} 👋
+            <h1 style={{ fontFamily: 'General Sans,sans-serif', fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em', color: 'hsl(40,6%,95%)', marginBottom: 6 }}>
+              Welcome back, {user?.name || 'Explorer'}!
             </h1>
-            <p style={{ color:'rgba(245,240,230,0.55)', fontSize:15 }}>
-              Discover AI tools, compare pricing, and find the perfect solution for your needs.
+            <p style={{ color: 'rgba(245,240,230,0.5)', fontSize: 15 }}>
+              {user?.email || 'explorer@aiuniverse.com'}
             </p>
           </div>
-          <Link to="/chat" style={{
-            padding:'12px 24px', borderRadius:12,
-            background:'linear-gradient(135deg, #7c3aed, #4f46e5)',
-            color:'#fff', textDecoration:'none',
-            fontWeight:600, fontSize:14,
-            display:'flex', alignItems:'center', gap:8,
-          }}>
-            <Zap size={16} /> Ask AI Advisor
-          </Link>
         </div>
 
-        {/* Stats */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:16, marginBottom:32 }}>
-          {[
-            { label:'Total AI Tools',   value: tools.length || '30+', icon: Zap,        color:'#a855f7' },
-            { label:'Categories',       value: categories.length || 7, icon: BarChart,   color:'#6366f1' },
-            { label:'With Free Tier',   value: freeTools || '20+',    icon: TrendingUp, color:'#f59e0b' },
-            { label:'API Available',    value: apiTools  || '18+',    icon: BookOpen,   color:'#10b981' },
-          ].map((stat) => (
-            <div key={stat.label} className="glass-card" style={{ borderRadius:16, padding:'20px 24px' }}>
-              <div style={{ width:36, height:36, borderRadius:10, background:`${stat.color}18`, border:`1px solid ${stat.color}30`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12 }}>
-                <stat.icon size={18} color={stat.color} />
-              </div>
-              <div style={{ fontFamily:'General Sans,sans-serif', fontSize:28, fontWeight:700, color:'hsl(40,6%,95%)', letterSpacing:'-0.02em' }}>
-                {stat.value}
-              </div>
-              <div style={{ color:'rgba(245,240,230,0.45)', fontSize:13 }}>{stat.label}</div>
+        {/* Action Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 56 }}>
+          
+          <Link to="/chat" className="glass-card" style={{ textDecoration: 'none', padding: '24px 20px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor='rgba(124,58,237,0.3)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.08)' }}
+          >
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink:0 }}>
+              <MessageSquare size={20} color="#a855f7" />
             </div>
-          ))}
-        </div>
+            <div>
+              <div style={{ fontWeight: 600, color: 'hsl(40,6%,95%)', fontSize: 16, marginBottom: 4 }}>Chat with AI</div>
+              <div style={{ fontSize: 13, color: 'rgba(245,240,230,0.5)' }}>Get recommendations</div>
+            </div>
+          </Link>
 
-        {/* Tabs */}
-        <div style={{ display:'flex', gap:4, marginBottom:24, background:'rgba(255,255,255,0.04)', borderRadius:12, padding:4, width:'fit-content' }}>
-          {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-              display:'flex', alignItems:'center', gap:6,
-              padding:'8px 18px', borderRadius:10, border:'none',
-              background: activeTab === tab.id ? 'rgba(124,58,237,0.3)' : 'transparent',
-              color: activeTab === tab.id ? '#c4b5fd' : 'rgba(245,240,230,0.5)',
-              cursor:'pointer', fontSize:13, fontWeight:500, transition:'all 0.2s',
-            }}>
-              <tab.icon size={14} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          <Link to="/tools" className="glass-card" style={{ textDecoration: 'none', padding: '24px 20px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor='rgba(59,130,246,0.3)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor='rgba(255,255,255,0.08)' }}
+          >
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink:0 }}>
+              <TrendingUp size={20} color="#60a5fa" />
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, color: 'hsl(40,6%,95%)', fontSize: 16, marginBottom: 4 }}>Explore Tools</div>
+              <div style={{ fontSize: 13, color: 'rgba(245,240,230,0.5)' }}>Browse {tools.length || '50+'} AI tools</div>
+            </div>
+          </Link>
 
-        {/* Overview */}
-        {activeTab === 'overview' && (
-          <div>
-            <h2 style={{ fontFamily:'General Sans,sans-serif', fontSize:22, fontWeight:600, color:'hsl(40,6%,95%)', marginBottom:20, display:'flex', alignItems:'center', gap:8 }}>
-              <TrendingUp size={18} color="#a855f7" /> Top AI Tools
-            </h2>
-            {toolsLoading ? (
-              <div style={{ display:'flex', justifyContent:'center', padding:'40px 0' }}>
-                <Loader2 size={28} color="#a855f7" style={{ animation:'spin 1s linear infinite' }} />
-              </div>
-            ) : (
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:16 }}>
-                {topTools.map((tool) => (
-                  <Link key={tool.slug} to={`/tools/${tool.slug}`} style={{ textDecoration:'none' }}>
-                    <div className="glass-card" style={{ borderRadius:14, padding:20, transition:'all 0.2s' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.transform='translateY(-2px)' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.transform='translateY(0)' }}
-                    >
-                      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:10 }}>
-                        <div style={{ width:40, height:40, borderRadius:10, background: tool.icon_color || '#6366f1', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700, fontSize:16 }}>
-                          {tool.icon || tool.name?.[0]}
-                        </div>
-                        <div>
-                          <div style={{ fontWeight:600, color:'hsl(40,6%,95%)', fontSize:15 }}>{tool.name}</div>
-                          <div style={{ fontSize:12, color:'rgba(245,240,230,0.4)' }}>{tool.provider}</div>
-                        </div>
-                        <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:4 }}>
-                          <Star size={12} fill="#fbbf24" color="#fbbf24" />
-                          <span style={{ fontSize:12, color:'#fbbf24', fontWeight:600 }}>{tool.rating}</span>
-                        </div>
-                      </div>
-                      <p style={{ fontSize:13, color:'rgba(245,240,230,0.5)', lineHeight:1.5, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
-                        {tool.description}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-            <div style={{ marginTop:32, textAlign:'center' }}>
-              <Link to="/tools" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'12px 28px', borderRadius:9999, background:'rgba(124,58,237,0.15)', border:'1px solid rgba(124,58,237,0.3)', color:'#c4b5fd', textDecoration:'none', fontWeight:600, fontSize:14 }}>
-                <Search size={15} /> View All {tools.length}+ Tools
-              </Link>
+          <div className="glass-card" style={{ padding: '24px 20px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink:0 }}>
+              <Bookmark size={20} color="#fbbf24" />
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, color: 'hsl(40,6%,95%)', fontSize: 16, marginBottom: 4 }}>Saved Tools</div>
+              <div style={{ fontSize: 13, color: 'rgba(245,240,230,0.5)' }}>{savedTools.length} saved</div>
             </div>
           </div>
-        )}
 
-        {/* Saved Tools */}
-        {activeTab === 'favorites' && (
-          savedLoading ? (
-            <div style={{ display:'flex', justifyContent:'center', padding:'60px 0' }}>
+        </div>
+
+        {/* Saved Tools Section */}
+        <div style={{ marginBottom: 56 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <h2 style={{ fontFamily: 'General Sans,sans-serif', fontSize: 22, fontWeight: 700, color: 'hsl(40,6%,95%)' }}>Saved Tools</h2>
+            <Link to="/tools" style={{ color: '#a855f7', fontSize: 14, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#c4b5fd'} onMouseLeave={(e) => e.target.style.color = '#a855f7'}>Browse more</Link>
+          </div>
+          
+          {savedLoading ? (
+            <div style={{ display:'flex', justifyContent:'center', padding:'40px 0' }}>
               <Loader2 size={28} color="#a855f7" style={{ animation:'spin 1s linear infinite' }} />
             </div>
           ) : savedTools.length === 0 ? (
-            <div style={{ textAlign:'center', padding:'60px 20px' }}>
-              <div style={{ fontSize:48, marginBottom:16 }}>⭐</div>
-              <h3 style={{ fontFamily:'General Sans,sans-serif', color:'hsl(40,6%,95%)', fontSize:22, marginBottom:12 }}>No Saved Tools Yet</h3>
-              <p style={{ color:'rgba(245,240,230,0.45)', marginBottom:24 }}>Browse tools and bookmark your favorites.</p>
-              <Link to="/tools" style={{ padding:'12px 24px', borderRadius:9999, background:'linear-gradient(135deg,#7c3aed,#4f46e5)', color:'#fff', textDecoration:'none', fontWeight:600 }}>Browse Tools</Link>
+            <div className="glass-card" style={{ borderRadius: 16, padding: '60px 20px', textAlign: 'center', display:'flex', flexDirection:'column', alignItems:'center', border: '1px solid rgba(255,255,255,0.04)' }}>
+              <Bookmark size={36} color="rgba(245,240,230,0.2)" strokeWidth={1.5} style={{ marginBottom: 16 }} />
+              <div style={{ color: 'rgba(245,240,230,0.6)', fontSize: 16, marginBottom: 12, fontWeight: 500 }}>No saved tools yet</div>
+              <Link to="/tools" style={{ color: '#a855f7', fontSize: 14, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#c4b5fd'} onMouseLeave={(e) => e.target.style.color = '#a855f7'}>Browse AI tools</Link>
             </div>
           ) : (
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:16 }}>
-              {savedTools.map((tool) => (
-                <Link key={tool.slug} to={`/tools/${tool.slug}`} style={{ textDecoration:'none' }}>
-                  <div className="glass-card" style={{ borderRadius:14, padding:20 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:8 }}>
-                      <div style={{ width:36, height:36, borderRadius:9, background: tool.icon_color || '#6366f1', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700 }}>
-                        {tool.icon || tool.name?.[0]}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight:600, color:'hsl(40,6%,95%)', fontSize:14 }}>{tool.name}</div>
-                        <div style={{ fontSize:12, color:'rgba(245,240,230,0.4)' }}>{tool.provider}</div>
-                      </div>
-                      <Bookmark size={14} fill="#fbbf24" color="#fbbf24" style={{ marginLeft:'auto' }} />
-                    </div>
-                    <p style={{ fontSize:12, color:'rgba(245,240,230,0.5)', lineHeight:1.5, WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden', display:'-webkit-box' }}>{tool.description}</p>
-                  </div>
-                </Link>
-              ))}
+              {savedTools.map(tool => <ToolCard key={tool.slug} tool={tool} isSaved={true} />)}
             </div>
-          )
-        )}
+          )}
+        </div>
 
-        {/* API Guides */}
-        {activeTab === 'guides' && (
-          <div>
-            <h3 style={{ fontFamily:'General Sans,sans-serif', color:'hsl(40,6%,95%)', fontSize:22, marginBottom:20 }}>Quick API Key Guides</h3>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))', gap:16 }}>
-              {['OpenAI','Google Cloud','AWS Bedrock','Anthropic','ElevenLabs','Hugging Face'].map((name) => (
-                <Link key={name} to="/api-key-guide" className="glass-card" style={{ borderRadius:14, padding:'20px 24px', display:'block', textDecoration:'none', transition:'all 0.2s' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.transform='translateY(-2px)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.transform='translateY(0)' }}
-                >
-                  <div style={{ fontSize:24, marginBottom:10 }}>🔑</div>
-                  <div style={{ fontWeight:600, color:'hsl(40,6%,95%)', fontSize:15, marginBottom:4 }}>{name}</div>
-                  <div style={{ fontSize:12, color:'rgba(245,240,230,0.45)' }}>API Key Guide</div>
-                </Link>
-              ))}
-            </div>
+        {/* Trending AI Tools Section */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <h2 style={{ fontFamily: 'General Sans,sans-serif', fontSize: 22, fontWeight: 700, color: 'hsl(40,6%,95%)' }}>Trending AI Tools</h2>
+            <Link to="/tools" style={{ color: '#a855f7', fontSize: 14, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => e.target.style.color = '#c4b5fd'} onMouseLeave={(e) => e.target.style.color = '#a855f7'}>See all</Link>
           </div>
-        )}
-      </div>
+          
+          {toolsLoading ? (
+            <div style={{ display:'flex', justifyContent:'center', padding:'40px 0' }}>
+              <Loader2 size={28} color="#a855f7" style={{ animation:'spin 1s linear infinite' }} />
+            </div>
+          ) : (
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:16 }}>
+              {topTools.map((tool) => (
+                <ToolCard key={tool.slug} tool={tool} isSaved={false} />
+              ))}
+            </div>
+          )}
+        </div>
 
+      </div>
       <Footer />
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
