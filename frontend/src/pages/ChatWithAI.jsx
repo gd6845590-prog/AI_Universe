@@ -92,7 +92,7 @@ export default function ChatWithAI() {
     <div style={{ minHeight:'100vh', background:'hsl(260,87%,3%)', display:'flex', flexDirection:'column' }}>
       <Navbar />
 
-      <div style={{ flex:1, display:'flex', overflow:'hidden', height:'calc(100vh - 64px)', marginTop:64, position:'relative' }}>
+      <div style={{ flex:1, display:'flex', overflow:'hidden', height:'calc(100vh - 77px)', marginTop:77, position:'relative' }}>
         {/* Sidebar */}
         <div style={{
           position: isMobile ? 'absolute' : 'relative',

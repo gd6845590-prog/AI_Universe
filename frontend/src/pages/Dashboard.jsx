@@ -61,7 +61,7 @@ export default function Dashboard() {
     <div style={{ minHeight:'100vh', background:'hsl(260,87%,3%)', display:'flex', flexDirection:'column' }}>
       <Navbar transparent={false} />
 
-      <div style={{ flex:1, maxWidth:1200, margin:'0 auto', width:'100%', padding:'40px 24px' }}>
+      <div style={{ flex:1, maxWidth:1200, margin:'0 auto', width:'100%', padding:'100px 24px 64px' }}>
         
         {/* Welcome Section */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>

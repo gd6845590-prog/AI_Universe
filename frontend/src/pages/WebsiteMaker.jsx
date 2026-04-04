@@ -15,7 +15,7 @@ export default function WebsiteMaker() {
       <div style={{
         background: 'linear-gradient(180deg, rgba(236,72,153,0.08) 0%, transparent 100%)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
-        padding: '60px 32px 48px', textAlign: 'center',
+        padding: '100px 32px 48px', textAlign: 'center',
       }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
